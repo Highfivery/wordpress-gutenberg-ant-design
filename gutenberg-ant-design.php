@@ -37,6 +37,7 @@ function gutenberg_ant_design_register_blocks() {
 	register_block_type( __DIR__ . '/build/block-library/post-date' );
 	register_block_type( __DIR__ . '/build/block-library/post-excerpt' );
 	register_block_type( __DIR__ . '/build/block-library/group' );
+	register_block_type( __DIR__ . '/build/block-library/post-featured-image' );
 }
 add_action( 'init', 'gutenberg_ant_design_register_blocks' );
 
@@ -50,4 +51,42 @@ add_filter(
 
 		return $categories;
 	}
+);
+
+/**
+ * Gutenberg editor styles
+ */
+add_action(
+	'admin_enqueue_scripts',
+	function() {
+		wp_enqueue_style(
+				'admin-styles',
+				plugin_dir_url( __FILE__ ) . 'assets/css/editor.css'
+		);
+	}
+);
+
+
+add_action(
+	'wp_default_styles',
+	function( $styles ) {
+
+		/* Create an array with the two handles wp-block-library and
+		 * wp-block-library-theme.
+		 */
+		$handles = [ 'wp-block-library', 'wp-block-library-theme' ];
+
+		foreach ( $handles as $handle ) {
+			// Search and compare with the list of registered style handles:
+			$style = $styles->query( $handle, 'registered' );
+			if ( ! $style ) {
+				continue;
+			}
+			// Remove the style
+			$styles->remove( $handle );
+			// Remove path and dependencies
+			$styles->add( $handle, false, [] );
+		}
+	},
+	PHP_INT_MAX
 );
